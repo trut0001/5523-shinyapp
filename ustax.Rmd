@@ -1,0 +1,94 @@
+---
+title: "ustax"
+author: "Travis Rutledge"
+date: "2024-10-21"
+output: html_document
+---
+
+Get the tax breakdowns
+Develop the mvp of the tax function. You input $100 and see it broken out by percentages
+Convert that into a shiny app
+
+```{r tax_input}
+healthcare <- .27
+defense <- .13
+interest_on_debt <- .10
+social_security <- .21
+economic_security <- .08
+general_government <- .05
+veterans_benefits <- .05
+infrastructure <- .05
+education <- .04
+natural_resources <- .02
+international_affairs <- .01
+```
+
+
+```{r marginal_tax_rate}
+#Function to return the tax rate based on income and filing status
+get_marginal_tax_rate <- function(income, filing_status) {
+  
+  #Tax brackets
+  brackets <- list(
+    "single" = c(11000, 44725, 95375, 182100, 231250, 578125),
+    "married" = c(22000, 89450, 190750, 364200, 462500, 693750),
+  )
+  
+  #Marginal tax rates
+  rates <- c(0.10, 0.12, 0.22, 0.24, 0.32, 0.35, 0.37)
+  
+  # Get the correct bracket based on filing status
+  tax_bracket <- brackets[[filing_status]]
+  
+  # Determine the tax rate based on income
+  if (income <= tax_bracket[1]) {
+    return(rates[1])
+  } else if (income <= tax_bracket[2]) {
+    return(rates[2])
+  } else if (income <= tax_bracket[3]) {
+    return(rates[3])
+  } else if (income <= tax_bracket[4]) {
+    return(rates[4])
+  } else if (income <= tax_bracket[5]) {
+    return(rates[5])
+  } else if (income <= tax_bracket[6]) {
+    return(rates[6])
+  } else {
+    return(rates[7])
+  }
+}
+
+income <- 50000
+filing_status <- "single"  # Can be "single", "married"
+
+# Get the marginal tax rate
+marginal_tax_rate <- get_marginal_tax_rate(income, filing_status)
+```
+
+```{r tax_breakdown}
+tax_breakdown <- function(user_income) {
+  tax <- income * marginal_tax_rate
+  federal_tax <- user_income * healthcare
+  
+  breakdown_table <- data.frame(
+    name = c("Healthcare", "Defense", "Interest on Debt", "Social Security", 
+             "Economic Security", "General Government", "Veterans Benefits", 
+             "Infrastructure", "Education", "Natural Resources", 
+             "International Affairs"),
+    result = c(federal_tax * healthcare, federal_tax * defense, 
+               federal_tax * interest_on_debt, federal_tax * social_security, 
+               federal_tax * economic_security, federal_tax * general_government, 
+               federal_tax * veterans_benefits, federal_tax * infrastructure, 
+               federal_tax * education, federal_tax * natural_resources, 
+               federal_tax * international_affairs)
+  )
+  return(breakdown_table)
+}
+
+# Example with user input
+result <- tax_breakdown(income)
+
+# Display the table
+print(result)
+```
+
